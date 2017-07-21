@@ -3,6 +3,7 @@ using System.Runtime.InteropServices;
 using System.Runtime.CompilerServices;
 using System.Diagnostics.Contracts;
 
+using static Contracts;
 using static System.Console;
 
 public static unsafe class Json {
@@ -136,6 +137,7 @@ public static unsafe class Json {
     return count;
   }
 
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   static void ParseString(ref JParser parser, utf8 json, JToken* tokens, int numberOfTokens) 
   {
     int start = parser.Position;
@@ -189,6 +191,7 @@ public static unsafe class Json {
     //throw new System.Exception("ERROR");
   }
 
+  [MethodImpl(MethodImplOptions.AggressiveInlining)]
   static void ParsePrimitive(ref JParser parser, utf8 json, JToken* tokens, int numberOfTokens) 
   {
     int start = parser.Position;
@@ -242,6 +245,7 @@ found:
   public static utf8 GetString(this JToken self, utf8 json) 
   {
     // @TODO ensure self is string
+    //Ensure(self.Type == JType.String);
     return json.Substring(self.Start, self.End - self.Start);
   }
 }
@@ -251,7 +255,8 @@ public unsafe class utf8 {
   int   _length;
   byte* _ptr;
 
-  public utf8(byte* ptr, int length) {
+  public utf8(byte* ptr, int length) 
+  {
     _length = length;
     _ptr = ptr;
   }
@@ -266,7 +271,8 @@ public unsafe class utf8 {
     get => _length;
   }
 
-  public utf8 Substring(int start, int length) {
+  public utf8 Substring(int start, int length) 
+  {
     Contract.Assert(_length >= start + length);
     Contract.Assert(start >= 0);
     Contract.Assert(length >= 0);
@@ -278,8 +284,16 @@ public unsafe class utf8 {
     return new utf8(_ptr + start, length);
   }
 
-  public override string ToString() {
+  public override string ToString() 
+  {
     if (_ptr == null) return string.Empty;
     return Encoding.UTF8.GetString(_ptr, _length);
+  }
+}
+
+static class Contracts {
+  public static void Ensure(bool condition)
+  {
+    if (condition == false) throw new System.Exception("NOT SURE");
   }
 }
